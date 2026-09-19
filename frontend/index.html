@@ -2,66 +2,356 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Venkathanu.Ai — Case Room</title>
+<meta name="description" content="Trusted Autonomous Cyber Investigation & Response">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b5cf6'%3E%3Cpath d='M12 2 3 6v6c0 5.25 3.75 9.75 9 11 5.25-1.25 9-5.75 9-11V6l-9-4z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { background:#0b0f14; color:#e5eaf0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
-  .card { background:#131a22; border:1px solid #223; border-radius:12px; padding:16px; }
-  .badge { padding:2px 8px; border-radius:6px; font-size:12px; font-weight:600; }
+  :root{
+    --bg:#07060c;
+    --panel:#0f0d18;
+    --panel-2:#131022;
+    --border:rgba(255,255,255,.08);
+    --violet:#8b5cf6;
+    --violet-2:#a855f7;
+  }
+  *{ font-family:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif; }
+  .mono{ font-family:'JetBrains Mono','SFMono-Regular',Consolas,monospace; }
+  body{
+    background:var(--bg);
+    color:#e7e6f5;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .bg-grid{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(139,92,246,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,92,246,.06) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .glow{ position:fixed; border-radius:9999px; filter:blur(110px); pointer-events:none; z-index:0; }
+  .glow-1{ width:600px; height:600px; top:-220px; left:-120px; background:rgba(139,92,246,.28); animation:float1 14s ease-in-out infinite; }
+  .glow-2{ width:520px; height:520px; top:-160px; right:-160px; background:rgba(217,70,239,.16); animation:float2 18s ease-in-out infinite; }
+  .glow-3{ width:480px; height:480px; bottom:-260px; left:35%; background:rgba(99,102,241,.14); animation:float1 20s ease-in-out infinite reverse; }
+  @keyframes float1{ 0%,100%{ transform:translate(0,0);} 50%{ transform:translate(30px,40px);} }
+  @keyframes float2{ 0%,100%{ transform:translate(0,0);} 50%{ transform:translate(-40px,20px);} }
+
+  .glass{
+    position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)), var(--panel);
+    border:1px solid var(--border);
+    border-radius:18px;
+    backdrop-filter:blur(6px);
+  }
+  .glass::before{
+    content:''; position:absolute; inset:0; border-radius:18px; padding:1px;
+    background:linear-gradient(135deg, rgba(139,92,246,.35), transparent 40%, transparent 70%, rgba(217,70,239,.2));
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    pointer-events:none;
+  }
+  .field{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:9px 12px;
+    color:#e7e6f5;
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  .field:focus{ outline:none; border-color:rgba(139,92,246,.6); box-shadow:0 0 0 3px rgba(139,92,246,.15); background:rgba(255,255,255,.045); }
+  .field::placeholder{ color:#6b6a85; }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:9px 16px; border-radius:10px; font-weight:600; font-size:13.5px;
+    border:1px solid transparent; transition:transform .12s, box-shadow .2s, filter .15s, border-color .15s;
+    white-space:nowrap; cursor:pointer;
+  }
+  .btn:active{ transform:translateY(1px) scale(.99); }
+  .btn-primary{ background:linear-gradient(135deg,#8b5cf6,#a855f7); color:#fff; box-shadow:0 6px 20px -6px rgba(139,92,246,.65); }
+  .btn-primary:hover{ filter:brightness(1.12); box-shadow:0 8px 26px -6px rgba(139,92,246,.85); }
+  .btn-ghost{ background:rgba(255,255,255,.04); color:#d9d8ec; border-color:var(--border); }
+  .btn-ghost:hover{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.18); }
+  .btn-success{ background:linear-gradient(135deg,#10b981,#059669); color:#fff; box-shadow:0 6px 20px -6px rgba(16,185,129,.55); }
+  .btn-success:hover{ filter:brightness(1.12); }
+  .btn-danger{ background:rgba(239,68,68,.12); color:#fca5a5; border-color:rgba(239,68,68,.35); }
+  .btn-danger:hover{ background:rgba(239,68,68,.2); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; box-shadow:none; }
+
+  .badge{ padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; display:inline-flex; align-items:center; gap:5px; }
+  .dot{ width:6px; height:6px; border-radius:999px; }
+
+  .stat-card{ background:var(--panel-2); border:1px solid var(--border); border-radius:16px; padding:16px 18px; position:relative; overflow:hidden; }
+  .stat-card::after{ content:''; position:absolute; inset:0; background:radial-gradient(120px 60px at 100% 0%, rgba(139,92,246,.16), transparent); pointer-events:none; }
+
+  .step{ display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; min-width:84px; }
+  .step-dot{
+    width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.04); border:1.5px solid var(--border); font-size:13px; font-weight:700; color:#8f8ea8;
+    transition:all .25s;
+  }
+  .step.done .step-dot{ background:linear-gradient(135deg,#8b5cf6,#a855f7); border-color:transparent; color:#fff; box-shadow:0 0 0 4px rgba(139,92,246,.15), 0 4px 16px -2px rgba(139,92,246,.6); }
+  .step.active .step-dot{ border-color:#8b5cf6; color:#c4b5fd; animation:pulseRing 1.6s ease-in-out infinite; }
+  .step-label{ font-size:11px; color:#9391ac; font-weight:600; text-align:center; }
+  .step.done .step-label{ color:#d8d4fb; }
+  .step-line{ flex:1; height:2px; background:var(--border); margin-top:17px; position:relative; top:-25px; min-width:16px; }
+  .step-line.done{ background:linear-gradient(90deg,#8b5cf6,#a855f7); }
+  @keyframes pulseRing{ 0%,100%{ box-shadow:0 0 0 0 rgba(139,92,246,.45);} 50%{ box-shadow:0 0 0 6px rgba(139,92,246,0);} }
+
+  .terminal-dot{ width:11px; height:11px; border-radius:999px; }
+  #output{ scrollbar-width:thin; scrollbar-color:#3a3550 transparent; }
+  #output::-webkit-scrollbar{ width:8px; }
+  #output::-webkit-scrollbar-thumb{ background:#3a3550; border-radius:8px; }
+
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(4,3,10,.7); backdrop-filter:blur(3px); z-index:50; display:flex; align-items:center; justify-content:center; }
+  .fade-in{ animation:fadeIn .15s ease-out; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:translateY(0);} }
+
+  .nav-link{ color:#a9a7c4; font-size:13.5px; font-weight:500; transition:color .15s; }
+  .nav-link:hover{ color:#fff; }
 </style>
 </head>
-<body class="p-6 max-w-5xl mx-auto">
-  <h1 class="text-2xl font-bold mb-1">Venkathanu.Ai</h1>
-  <p class="text-sm text-gray-400 mb-6">Trusted Autonomous Cyber Investigation &amp; Response — API: <span id="apiBase"></span></p>
+<body class="relative">
+  <div class="bg-grid"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
 
-  <div class="card mb-4">
-    <h2 class="font-semibold mb-2">1. Case</h2>
-    <div class="flex gap-2 flex-wrap">
-      <input id="caseId" class="bg-black/30 border border-gray-700 rounded px-2 py-1" placeholder="VK-2026-0017" value="VK-DEMO-COMPROMISED">
-      <input id="title" class="bg-black/30 border border-gray-700 rounded px-2 py-1 flex-1" placeholder="Case title" value="Suspicious Finance Workstation Activity">
-      <button onclick="createCase()" class="bg-blue-600 px-3 py-1 rounded">Create Case</button>
-      <select id="demoCase" class="bg-black/30 border border-gray-700 rounded px-2 py-1">
-        <option value="">-- pick a demo evidence set --</option>
-        <option value="benign_case">Benign</option>
-        <option value="suspicious_case">Suspicious</option>
-        <option value="compromised_case">Compromised</option>
-      </select>
-      <button onclick="uploadDemoEvidence()" class="bg-gray-700 px-3 py-1 rounded">Upload Demo Evidence</button>
+  <!-- NAV -->
+  <header class="relative z-10 sticky top-0 border-b border-white/[.06] bg-black/40 backdrop-blur-xl">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 3 6v6c0 5.25 3.75 9.75 9 11 5.25-1.25 9-5.75 9-11V6l-9-4z" fill="url(#g1)"/><defs><linearGradient id="g1" x1="3" y1="2" x2="21" y2="23"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+        <span class="font-extrabold tracking-tight text-[15px]">Venkathanu<span class="text-violet-400">.Ai</span></span>
+      </div>
+      <nav class="hidden md:flex items-center gap-7">
+        <a class="nav-link" href="#case">Case</a>
+        <a class="nav-link" href="#pipeline">Pipeline</a>
+        <a class="nav-link" href="#output">Ledger Output</a>
+        <a class="nav-link" href="https://github.com/yakshithavt/VTmoss-ai" target="_blank" rel="noopener">Docs</a>
+      </nav>
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-2 text-[11px] font-semibold text-violet-200 bg-violet-500/10 border border-violet-500/25 rounded-full px-3 py-1.5">
+          <span class="dot bg-emerald-400" style="box-shadow:0 0 8px 2px rgba(52,211,153,.7)"></span>
+          Local Engine
+        </span>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div class="card mb-4">
-    <h2 class="font-semibold mb-2">2. Pipeline</h2>
-    <div class="flex gap-2 flex-wrap">
-      <button onclick="step('investigate','POST')" class="bg-indigo-600 px-3 py-1 rounded">Investigate</button>
-      <button onclick="step('challenge','POST')" class="bg-indigo-600 px-3 py-1 rounded">Counter-Evidence</button>
-      <button onclick="step('finalize','POST')" class="bg-indigo-600 px-3 py-1 rounded">Finalize</button>
-      <button onclick="step('anchor','POST')" class="bg-emerald-600 px-3 py-1 rounded">Anchor to Blockchain</button>
-      <button onclick="step('verify','GET')" class="bg-emerald-600 px-3 py-1 rounded">Verify Integrity</button>
-      <button onclick="tamper()" class="bg-red-700 px-3 py-1 rounded">Tamper (demo)</button>
-      <button onclick="step('response-plan','GET')" class="bg-gray-700 px-3 py-1 rounded">Response Plan</button>
+  <!-- HERO -->
+  <section class="relative z-10 max-w-6xl mx-auto px-6 pt-14 pb-8 text-center">
+    <div class="inline-flex items-center gap-2 text-[11px] font-semibold text-violet-200 bg-violet-500/10 border border-violet-500/25 rounded-full px-3.5 py-1.5 mb-6">
+      <span class="dot bg-violet-400 animate-pulse"></span> Investigation → Challenge → Trust → Anchor
     </div>
-  </div>
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.08] mb-4">
+      Trusted Autonomous<br/>
+      <span class="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-fuchsia-400 to-violet-300">Cyber Investigation &amp; Response</span>
+    </h1>
+    <p class="text-[15px] text-[#a6a4c2] max-w-xl mx-auto mb-1">
+      Evidence in. AI investigation, counter-evidence and trust scoring out — sealed with a Merkle root and anchored on-chain.
+    </p>
+    <p class="text-[12px] text-[#6b6a85] mono">API base: <span id="apiBase" class="text-violet-300"></span></p>
+  </section>
 
-  <div class="card">
-    <h2 class="font-semibold mb-2">Output</h2>
-    <pre id="output" class="text-xs overflow-auto max-h-[480px] whitespace-pre-wrap"></pre>
+  <main class="relative z-10 max-w-6xl mx-auto px-6 pb-24">
+
+    <!-- SESSION STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="stat-card">
+        <p class="text-[11px] uppercase tracking-wide text-[#8f8ea8] font-semibold mb-1.5">Active Case</p>
+        <p id="statCase" class="text-lg font-bold mono text-white truncate">—</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-[11px] uppercase tracking-wide text-[#8f8ea8] font-semibold mb-1.5">Actions Run</p>
+        <p id="statActions" class="text-lg font-bold text-white">0</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-[11px] uppercase tracking-wide text-[#8f8ea8] font-semibold mb-1.5">Last Status</p>
+        <p id="statStatus" class="text-lg font-bold text-[#8f8ea8]">Idle</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-[11px] uppercase tracking-wide text-[#8f8ea8] font-semibold mb-1.5">Chain Target</p>
+        <p class="text-lg font-bold text-white">Local Hardhat</p>
+      </div>
+    </div>
+
+    <!-- CASE PANEL -->
+    <div id="case" class="glass p-6 mb-6 scroll-mt-20">
+      <div class="flex items-center gap-2.5 mb-5">
+        <span class="step-dot" style="width:26px;height:26px;font-size:11px;background:linear-gradient(135deg,#8b5cf6,#a855f7);border:none;color:#fff;">1</span>
+        <h2 class="font-bold text-[15px]">Open a Case</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-[#8f8ea8] mb-1.5 uppercase tracking-wide">Case ID</label>
+          <input id="caseId" class="field w-full mono text-[13px]" placeholder="VK-2026-0017" value="VK-DEMO-COMPROMISED">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-[#8f8ea8] mb-1.5 uppercase tracking-wide">Title</label>
+          <input id="title" class="field w-full text-[13px]" placeholder="Case title" value="Suspicious Finance Workstation Activity">
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button onclick="createCase()" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+          Create Case
+        </button>
+        <div class="h-6 w-px bg-white/10 mx-1 hidden sm:block"></div>
+        <select id="demoCase" class="field text-[13px]">
+          <option value="">Pick a demo evidence set…</option>
+          <option value="benign_case">Benign</option>
+          <option value="suspicious_case">Suspicious</option>
+          <option value="compromised_case">Compromised</option>
+        </select>
+        <button onclick="uploadDemoEvidence()" class="btn btn-ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+          Upload Demo Evidence
+        </button>
+      </div>
+    </div>
+
+    <!-- PIPELINE PANEL -->
+    <div id="pipeline" class="glass p-6 mb-6 scroll-mt-20">
+      <div class="flex items-center gap-2.5 mb-5">
+        <span class="step-dot" style="width:26px;height:26px;font-size:11px;background:linear-gradient(135deg,#8b5cf6,#a855f7);border:none;color:#fff;">2</span>
+        <h2 class="font-bold text-[15px]">Investigation Pipeline</h2>
+      </div>
+
+      <!-- stepper -->
+      <div class="flex items-start mb-7 overflow-x-auto pb-1" id="stepper">
+        <div class="step" data-step="investigate"><div class="step-dot">1</div><div class="step-label">Investigate</div></div>
+        <div class="step-line" data-line="1"></div>
+        <div class="step" data-step="challenge"><div class="step-dot">2</div><div class="step-label">Counter-Evidence</div></div>
+        <div class="step-line" data-line="2"></div>
+        <div class="step" data-step="finalize"><div class="step-dot">3</div><div class="step-label">Finalize</div></div>
+        <div class="step-line" data-line="3"></div>
+        <div class="step" data-step="anchor"><div class="step-dot">4</div><div class="step-label">Anchor</div></div>
+        <div class="step-line" data-line="4"></div>
+        <div class="step" data-step="verify"><div class="step-dot">5</div><div class="step-label">Verify</div></div>
+      </div>
+
+      <div class="flex flex-wrap gap-2.5 mb-4">
+        <button onclick="step('investigate','POST')" class="btn btn-ghost">🔎 Investigate</button>
+        <button onclick="step('challenge','POST')" class="btn btn-ghost">⚔️ Counter-Evidence</button>
+        <button onclick="step('finalize','POST')" class="btn btn-ghost">✅ Finalize</button>
+        <button onclick="step('anchor','POST')" class="btn btn-success">⛓️ Anchor to Blockchain</button>
+        <button onclick="step('verify','GET')" class="btn btn-success">🛡️ Verify Integrity</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-2.5 pt-4 border-t border-white/[.06]">
+        <span class="text-[11px] font-semibold text-[#8f8ea8] uppercase tracking-wide mr-1">Utilities</span>
+        <button onclick="step('response-plan','GET')" class="btn btn-ghost">📋 Response Plan</button>
+        <button onclick="openTamperModal()" class="btn btn-danger">⚠️ Tamper (demo)</button>
+      </div>
+    </div>
+
+    <!-- OUTPUT PANEL -->
+    <div id="output-panel" class="glass overflow-hidden mb-4 scroll-mt-20" >
+      <div id="output" class="flex items-center justify-between px-5 py-3 border-b border-white/[.06] bg-black/30">
+        <div class="flex items-center gap-2">
+          <span class="terminal-dot bg-[#ff5f57]"></span>
+          <span class="terminal-dot bg-[#febc2e]"></span>
+          <span class="terminal-dot bg-[#28c840]"></span>
+          <span id="output-title-shim" class="mono text-[12px] text-[#8f8ea8] ml-2">response.json</span>
+        </div>
+        <button onclick="copyOutput()" class="text-[11px] font-semibold text-[#a9a7c4] hover:text-white flex items-center gap-1.5">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre id="outputBody" class="mono text-[12.5px] leading-relaxed overflow-auto max-h-[420px] whitespace-pre-wrap p-5 text-[#c9c7e0]">// output will appear here after your first action</pre>
+    </div>
+  </main>
+
+  <footer class="relative z-10 border-t border-white/[.06] py-6 text-center text-[11px] text-[#6b6a85]">
+    Venkathanu.Ai — Evidence → AI Investigation → Counter-Evidence Challenge → Trust Scoring → SHA-256 → Merkle Tree → Ethereum Anchor
+  </footer>
+
+  <!-- TAMPER MODAL -->
+  <div id="tamperModal" class="modal-backdrop hidden">
+    <div class="glass fade-in p-6 w-[90%] max-w-sm">
+      <h3 class="font-bold text-[15px] mb-1 text-red-300">⚠️ Tamper with threat score</h3>
+      <p class="text-[12px] text-[#8f8ea8] mb-4">Demo only — simulates a record modification so the integrity check can catch it.</p>
+      <label class="block text-[11px] font-semibold text-[#8f8ea8] mb-1.5 uppercase tracking-wide">New threat score</label>
+      <input id="tamperScore" type="number" class="field w-full mono mb-4" value="32">
+      <div class="flex justify-end gap-2.5">
+        <button onclick="closeTamperModal()" class="btn btn-ghost">Cancel</button>
+        <button onclick="submitTamper()" class="btn btn-danger">Apply Tamper</button>
+      </div>
+    </div>
   </div>
 
 <script>
 const API = "http://127.0.0.1:8000/api/cases";
 document.getElementById('apiBase').textContent = API;
 
-function log(obj) {
-  document.getElementById('output').textContent = JSON.stringify(obj, null, 2);
+const session = { actions: 0 };
+const stageOrder = ['investigate','challenge','finalize','anchor','verify'];
+
+function setStatus(label, colorClass){
+  const el = document.getElementById('statStatus');
+  el.textContent = label;
+  el.className = 'text-lg font-bold ' + colorClass;
+}
+
+function markStage(name, success){
+  const stepEl = document.querySelector(`.step[data-step="${name}"]`);
+  if (!stepEl) return;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  if (success) {
+    stepEl.classList.add('done');
+    const idx = stageOrder.indexOf(name);
+    const line = document.querySelector(`.step-line[data-line="${idx+1}"]`);
+    if (line) line.classList.add('done');
+  } else {
+    stepEl.classList.add('active');
+  }
+}
+
+function syntaxHighlight(obj){
+  let json = JSON.stringify(obj, null, 2);
+  json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    let cls = 'text-emerald-400';
+    if (/^"/.test(m)) cls = /:$/.test(m) ? 'text-sky-300' : 'text-amber-300';
+    else if (/true|false/.test(m)) cls = 'text-violet-300';
+    else if (/null/.test(m)) cls = 'text-[#6b6a85]';
+    return `<span class="${cls}">${m}</span>`;
+  });
+}
+
+let lastOutput = null;
+function log(obj, ok = true){
+  lastOutput = obj;
+  document.getElementById('outputBody').innerHTML = syntaxHighlight(obj);
+  session.actions++;
+  document.getElementById('statActions').textContent = session.actions;
+  setStatus(ok ? 'Success' : 'Error', ok ? 'text-emerald-400' : 'text-red-400');
+}
+
+function copyOutput(){
+  if (!lastOutput) return;
+  navigator.clipboard.writeText(JSON.stringify(lastOutput, null, 2));
+  const btn = event.currentTarget;
+  const original = btn.innerHTML;
+  btn.textContent = 'Copied ✓';
+  setTimeout(() => btn.innerHTML = original, 1200);
 }
 
 async function createCase() {
   const case_id = document.getElementById('caseId').value.trim();
   const title = document.getElementById('title').value.trim();
-  const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({case_id, title, evidence_source:'Windows Security Logs', investigation_type:'Endpoint Incident'})});
-  log(await res.json());
+  document.getElementById('statCase').textContent = case_id || '—';
+  try {
+    const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({case_id, title, evidence_source:'Windows Security Logs', investigation_type:'Endpoint Incident'})});
+    log(await res.json(), res.ok);
+  } catch (e) { log({error: String(e)}, false); }
 }
 
 const DEMO_EVIDENCE = {
@@ -89,21 +379,33 @@ async function uploadDemoEvidence() {
   const blob = new Blob([JSON.stringify(DEMO_EVIDENCE[key])], {type:'application/json'});
   const fd = new FormData();
   fd.append('file', blob, 'evidence.json');
-  const res = await fetch(`${API}/${case_id}/evidence`, {method:'POST', body: fd});
-  log(await res.json());
+  try {
+    const res = await fetch(`${API}/${case_id}/evidence`, {method:'POST', body: fd});
+    log(await res.json(), res.ok);
+  } catch (e) { log({error: String(e)}, false); }
 }
 
 async function step(path, method) {
   const case_id = document.getElementById('caseId').value.trim();
-  const res = await fetch(`${API}/${case_id}/${path}`, {method});
-  log(await res.json());
+  try {
+    const res = await fetch(`${API}/${case_id}/${path}`, {method});
+    const data = await res.json();
+    log(data, res.ok);
+    if (stageOrder.includes(path)) markStage(path, res.ok);
+  } catch (e) { log({error: String(e)}, false); }
 }
 
-async function tamper() {
+function openTamperModal(){ document.getElementById('tamperModal').classList.remove('hidden'); }
+function closeTamperModal(){ document.getElementById('tamperModal').classList.add('hidden'); }
+
+async function submitTamper() {
   const case_id = document.getElementById('caseId').value.trim();
-  const score = prompt('New (tampered) threat score:', '32');
-  const res = await fetch(`${API}/${case_id}/tamper?new_threat_score=${score}`, {method:'POST'});
-  log(await res.json());
+  const score = document.getElementById('tamperScore').value;
+  closeTamperModal();
+  try {
+    const res = await fetch(`${API}/${case_id}/tamper?new_threat_score=${score}`, {method:'POST'});
+    log(await res.json(), res.ok);
+  } catch (e) { log({error: String(e)}, false); }
 }
 </script>
 </body>
