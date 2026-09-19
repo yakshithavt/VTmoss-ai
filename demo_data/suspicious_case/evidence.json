@@ -1,0 +1,6 @@
+[
+  {"event_id":"EVT-201","timestamp":"2026-09-12T02:14:00Z","source":"windows_security","event_type":"process_creation","user":"employee07","host":"WS-140","process":"powershell.exe","command":"powershell -enc aGVsbG8gd29ybGQ=","severity":"high"},
+  {"event_id":"EVT-202","timestamp":"2026-09-12T02:10:00Z","source":"windows_security","event_type":"authentication","user":"employee07","host":"WS-140","result":"impossible_travel","severity":"medium"},
+  {"event_id":"EVT-203","timestamp":"2026-09-12T02:20:00Z","source":"network","event_type":"url","user":"employee07","host":"WS-140","url":"http://update-check-cdn.example-bad.net","known_malicious_domain":true,"severity":"medium"},
+  {"event_id":"EVT-204","timestamp":"2026-09-11T14:00:00Z","source":"windows_security","event_type":"process_creation","user":"employee07","host":"WS-140","process":"powershell.exe","command":"powershell -enc aGVsbG8gd29ybGQ=","severity":"low","authorized":true,"context":"Same script also run earlier that week under a signed maintenance task"}
+]

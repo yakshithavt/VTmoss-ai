@@ -1,0 +1,8 @@
+[
+  {"event_id":"EVT-301","timestamp":"2026-09-14T03:02:00Z","source":"windows_security","event_type":"authentication","user":"finance_analyst","host":"WS-104","result":"impossible_travel","severity":"high"},
+  {"event_id":"EVT-302","timestamp":"2026-09-14T03:05:00Z","source":"windows_security","event_type":"process_creation","user":"finance_analyst","host":"WS-104","process":"powershell.exe","command":"powershell -enc SGFja2VkIQ==","severity":"high"},
+  {"event_id":"EVT-303","timestamp":"2026-09-14T03:07:00Z","source":"windows_security","event_type":"process_creation","user":"finance_analyst","host":"WS-104","process":"lsass_dump_procdump.exe","severity":"critical"},
+  {"event_id":"EVT-304","timestamp":"2026-09-14T03:12:00Z","source":"network","event_type":"network","user":"finance_analyst","host":"WS-104","connection_type":"smb_admin_share","severity":"high"},
+  {"event_id":"EVT-305","timestamp":"2026-09-14T03:20:00Z","source":"endpoint","event_type":"file","user":"finance_analyst","host":"WS-104","file":"q3_financials_backup.zip","size_mb":180,"severity":"high"},
+  {"event_id":"EVT-306","timestamp":"2026-09-14T03:25:00Z","source":"network","event_type":"url","user":"finance_analyst","host":"WS-104","url":"http://exfil-drop.example-bad.net","known_malicious_domain":true,"severity":"critical"}
+]

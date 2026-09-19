@@ -1,0 +1,5 @@
+[
+  {"event_id":"EVT-101","timestamp":"2026-09-10T09:15:00Z","source":"windows_security","event_type":"process_creation","user":"itadmin02","host":"WS-220","process":"powershell.exe","command":"powershell -enc VABlAHMAdAA=","severity":"high","authorized":true,"context":"Scheduled patch-deployment script, ticket #4821"},
+  {"event_id":"EVT-102","timestamp":"2026-09-10T09:15:05Z","source":"windows_security","event_type":"authentication","user":"itadmin02","host":"WS-220","result":"success","severity":"low"},
+  {"event_id":"EVT-103","timestamp":"2026-09-10T09:16:00Z","source":"windows_security","event_type":"file","user":"itadmin02","host":"WS-220","file":"patch_manifest.json","size_mb":1.2,"severity":"low"}
+]

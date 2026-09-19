@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Venkathanu.Ai — Case Room</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background:#0b0f14; color:#e5eaf0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
+  .card { background:#131a22; border:1px solid #223; border-radius:12px; padding:16px; }
+  .badge { padding:2px 8px; border-radius:6px; font-size:12px; font-weight:600; }
+</style>
+</head>
+<body class="p-6 max-w-5xl mx-auto">
+  <h1 class="text-2xl font-bold mb-1">Venkathanu.Ai</h1>
+  <p class="text-sm text-gray-400 mb-6">Trusted Autonomous Cyber Investigation &amp; Response — API: <span id="apiBase"></span></p>
+
+  <div class="card mb-4">
+    <h2 class="font-semibold mb-2">1. Case</h2>
+    <div class="flex gap-2 flex-wrap">
+      <input id="caseId" class="bg-black/30 border border-gray-700 rounded px-2 py-1" placeholder="VK-2026-0017" value="VK-DEMO-COMPROMISED">
+      <input id="title" class="bg-black/30 border border-gray-700 rounded px-2 py-1 flex-1" placeholder="Case title" value="Suspicious Finance Workstation Activity">
+      <button onclick="createCase()" class="bg-blue-600 px-3 py-1 rounded">Create Case</button>
+      <select id="demoCase" class="bg-black/30 border border-gray-700 rounded px-2 py-1">
+        <option value="">-- pick a demo evidence set --</option>
+        <option value="benign_case">Benign</option>
+        <option value="suspicious_case">Suspicious</option>
+        <option value="compromised_case">Compromised</option>
+      </select>
+      <button onclick="uploadDemoEvidence()" class="bg-gray-700 px-3 py-1 rounded">Upload Demo Evidence</button>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <h2 class="font-semibold mb-2">2. Pipeline</h2>
+    <div class="flex gap-2 flex-wrap">
+      <button onclick="step('investigate','POST')" class="bg-indigo-600 px-3 py-1 rounded">Investigate</button>
+      <button onclick="step('challenge','POST')" class="bg-indigo-600 px-3 py-1 rounded">Counter-Evidence</button>
+      <button onclick="step('finalize','POST')" class="bg-indigo-600 px-3 py-1 rounded">Finalize</button>
+      <button onclick="step('anchor','POST')" class="bg-emerald-600 px-3 py-1 rounded">Anchor to Blockchain</button>
+      <button onclick="step('verify','GET')" class="bg-emerald-600 px-3 py-1 rounded">Verify Integrity</button>
+      <button onclick="tamper()" class="bg-red-700 px-3 py-1 rounded">Tamper (demo)</button>
+      <button onclick="step('response-plan','GET')" class="bg-gray-700 px-3 py-1 rounded">Response Plan</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-2">Output</h2>
+    <pre id="output" class="text-xs overflow-auto max-h-[480px] whitespace-pre-wrap"></pre>
+  </div>
+
+<script>
+const API = "http://127.0.0.1:8000/api/cases";
+document.getElementById('apiBase').textContent = API;
+
+function log(obj) {
+  document.getElementById('output').textContent = JSON.stringify(obj, null, 2);
+}
+
+async function createCase() {
+  const case_id = document.getElementById('caseId').value.trim();
+  const title = document.getElementById('title').value.trim();
+  const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({case_id, title, evidence_source:'Windows Security Logs', investigation_type:'Endpoint Incident'})});
+  log(await res.json());
+}
+
+const DEMO_EVIDENCE = {
+  benign_case: [{"event_id":"EVT-101","timestamp":"2026-09-10T09:15:00Z","source":"windows_security","event_type":"process_creation","user":"itadmin02","host":"WS-220","process":"powershell.exe","command":"powershell -enc VABlAHMAdAA=","severity":"high","authorized":true,"context":"Scheduled patch-deployment script, ticket #4821"}],
+  suspicious_case: [
+    {"event_id":"EVT-201","timestamp":"2026-09-12T02:14:00Z","source":"windows_security","event_type":"process_creation","user":"employee07","host":"WS-140","process":"powershell.exe","command":"powershell -enc aGVsbG8gd29ybGQ=","severity":"high"},
+    {"event_id":"EVT-202","timestamp":"2026-09-12T02:10:00Z","source":"windows_security","event_type":"authentication","user":"employee07","host":"WS-140","result":"impossible_travel","severity":"medium"},
+    {"event_id":"EVT-203","timestamp":"2026-09-12T02:20:00Z","source":"network","event_type":"url","user":"employee07","host":"WS-140","url":"http://update-check-cdn.example-bad.net","known_malicious_domain":true,"severity":"medium"},
+    {"event_id":"EVT-204","timestamp":"2026-09-11T14:00:00Z","source":"windows_security","event_type":"process_creation","user":"employee07","host":"WS-140","process":"powershell.exe","command":"powershell -enc aGVsbG8gd29ybGQ=","severity":"low","authorized":true,"context":"Same script also run earlier that week under a signed maintenance task"}
+  ],
+  compromised_case: [
+    {"event_id":"EVT-301","timestamp":"2026-09-14T03:02:00Z","source":"windows_security","event_type":"authentication","user":"finance_analyst","host":"WS-104","result":"impossible_travel","severity":"high"},
+    {"event_id":"EVT-302","timestamp":"2026-09-14T03:05:00Z","source":"windows_security","event_type":"process_creation","user":"finance_analyst","host":"WS-104","process":"powershell.exe","command":"powershell -enc SGFja2VkIQ==","severity":"high"},
+    {"event_id":"EVT-303","timestamp":"2026-09-14T03:07:00Z","source":"windows_security","event_type":"process_creation","user":"finance_analyst","host":"WS-104","process":"lsass_dump_procdump.exe","severity":"critical"},
+    {"event_id":"EVT-304","timestamp":"2026-09-14T03:12:00Z","source":"network","event_type":"network","user":"finance_analyst","host":"WS-104","connection_type":"smb_admin_share","severity":"high"},
+    {"event_id":"EVT-305","timestamp":"2026-09-14T03:20:00Z","source":"endpoint","event_type":"file","user":"finance_analyst","host":"WS-104","file":"q3_financials_backup.zip","size_mb":180,"severity":"high"},
+    {"event_id":"EVT-306","timestamp":"2026-09-14T03:25:00Z","source":"network","event_type":"url","user":"finance_analyst","host":"WS-104","url":"http://exfil-drop.example-bad.net","known_malicious_domain":true,"severity":"critical"}
+  ]
+};
+
+async function uploadDemoEvidence() {
+  const case_id = document.getElementById('caseId').value.trim();
+  const key = document.getElementById('demoCase').value;
+  if (!key) return alert('Pick a demo evidence set first');
+  const blob = new Blob([JSON.stringify(DEMO_EVIDENCE[key])], {type:'application/json'});
+  const fd = new FormData();
+  fd.append('file', blob, 'evidence.json');
+  const res = await fetch(`${API}/${case_id}/evidence`, {method:'POST', body: fd});
+  log(await res.json());
+}
+
+async function step(path, method) {
+  const case_id = document.getElementById('caseId').value.trim();
+  const res = await fetch(`${API}/${case_id}/${path}`, {method});
+  log(await res.json());
+}
+
+async function tamper() {
+  const case_id = document.getElementById('caseId').value.trim();
+  const score = prompt('New (tampered) threat score:', '32');
+  const res = await fetch(`${API}/${case_id}/tamper?new_threat_score=${score}`, {method:'POST'});
+  log(await res.json());
+}
+</script>
+</body>
+</html>
